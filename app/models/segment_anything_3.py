@@ -28,7 +28,7 @@ class SegmentAnything3(BaseModel):
         bpe_path = self.params.get("bpe_path")
         model_path = self.params.get("model_path")
         device = self.params.get("device", "cuda:0")
-        self.device = "cuda" if "cuda" in device else device
+        self.device = device
 
         logger.info(f"Loading SAM3 model from {model_path}")
         self.model = build_sam3_image_model(

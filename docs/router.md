@@ -169,6 +169,25 @@ Execute model inference on an image.
 }
 ```
 
+#### Video Session Parameters (SAM3 Video Session)
+
+Some frame-by-frame "video" models keep server-side state between requests.
+This is useful when you call `/v1/predict` repeatedly across frames.
+
+For `model: "sam3_video_session"`, the following optional parameters are supported:
+
+| Param | Type | Default | Description |
+|------|------|---------|-------------|
+| `session_id` | String | `"default"` | Isolates per-video state so multiple videos can run concurrently without overwriting each other. |
+| `reset_session` | Boolean | `false` | Clears tracking state for this `session_id`. (`reset_tracker` is an alias.) |
+| `prompt_id` | String | (none) | Loads a previously saved prompt (boxes) from the prompt bank and uses it as the initial prompt for the session. |
+| `save_prompt_id` | String | (none) | Saves the current prompt (boxes) into the prompt bank under this name. |
+
+Typical flows:
+
+- Multiple videos at once (no prompt sharing): send a unique `session_id` per video.
+- Reuse the same prompt across multiple videos: on one request, provide an explicit prompt (`marks` or `text_prompt`) and set `save_prompt_id`. For each new video, set a new `session_id` and pass `prompt_id` to reuse that prompt without re-sending the prompt itself.
+
 **Request Fields:**
 
 | Field | Type | Required | Description |

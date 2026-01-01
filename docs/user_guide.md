@@ -113,6 +113,7 @@ Add to `configs/models.yaml`:
 enabled_models:
   - yolo11n
   - yolo11n_seg
+  - sam3_video_session
   - your_model_id  # Models will be displayed in this order
   # - yolo11s      # Comment out to disable a model
 ```
@@ -120,6 +121,46 @@ enabled_models:
 > [!NOTE]
 > - Models are displayed in X-AnyLabeling UI in the order listed here
 > - Comment out any model you don't want to load to save resources
+
+### 1.5 Video Sessions (SAM3)
+
+Some video-style models keep server-side state across repeated `/v1/predict` calls.
+
+If you use `sam3_video_session`, you can run multiple videos at the same time by
+providing a unique `session_id` per video.
+
+You can also reuse the same prompt across multiple videos using the in-memory prompt bank:
+
+- First, create/save a prompt:
+
+```json
+{
+  "model": "sam3_video_session",
+  "image": "data:image/png;base64,...",
+  "params": {
+    "session_id": "video-A",
+    "marks": [{"type": "rectangle", "label": 1, "data": [10, 20, 200, 220]}],
+    "save_prompt_id": "my_prompt"
+  }
+}
+```
+
+- Then, on any other video, reuse it without re-sending the prompt:
+
+```json
+{
+  "model": "sam3_video_session",
+  "image": "data:image/png;base64,...",
+  "params": {
+    "session_id": "video-B",
+    "prompt_id": "my_prompt"
+  }
+}
+```
+
+Notes:
+- `reset_session: true` clears tracking state for that `session_id`.
+- The prompt bank is in-memory; restarting the server clears saved prompts.
 
 ## 2. Response Schema
 
